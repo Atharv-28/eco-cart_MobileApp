@@ -63,7 +63,7 @@ const Home = () => {
         onPress={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
         disabled={currentPage === 1}
       >
-        <Ionicons name="chevron-back" size={24} color={currentPage === 1 ? '#ccc' : '#007bff'} />
+        <Ionicons name="chevron-back" size={24} color={currentPage === 1 ? '#ccc' : '#198754'} />
       </TouchableOpacity>
       <Text style={styles.paginationText}>
         Page {currentPage} of {totalPages}
@@ -73,7 +73,7 @@ const Home = () => {
         onPress={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
         disabled={currentPage === totalPages || totalPages === 0}
       >
-        <Ionicons name="chevron-forward" size={24} color={currentPage === totalPages ? '#ccc' : '#007bff'} />
+        <Ionicons name="chevron-forward" size={24} color={currentPage === totalPages ? '#ccc' : '#198754'} />
       </TouchableOpacity>
     </View>
   );
@@ -95,8 +95,11 @@ const Home = () => {
         <>
           <FlatList
             data={paginatedProducts}
+            key={'two-columns'} // Add a static key to prevent the error
             keyExtractor={item => item.id}
             renderItem={({ item }) => <ProductCard {...item} />}
+            numColumns={2} // Display two products per row
+            columnWrapperStyle={styles.row} // Style for rows
             contentContainerStyle={styles.productList}
           />
           {totalPages > 1 && <Pagination />}
@@ -111,7 +114,7 @@ const Home = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#e9f5e9',
     padding: 16,
   },
   searchBar: {
@@ -125,6 +128,10 @@ const styles = StyleSheet.create({
   productList: {
     paddingBottom: 16,
   },
+  row: {
+    justifyContent: 'space-between', // Space between items in a row
+    marginBottom: 16,
+  },
   loader: {
     marginTop: 32,
   },
@@ -137,7 +144,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
+    backgroundColor: 'transparent',
+    // marginTop: 16,
   },
   paginationButton: {
     padding: 8,

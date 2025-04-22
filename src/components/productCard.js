@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // For icons
 
 const ProductCard = (props) => {
-  const { id, name, link, img, rating, rating_description, material } = props;
+  const { name, link, img, rating, rating_description, material } = props;
 
   const ratingStars = Array.from({ length: 5 }, (_, i) => i < Math.round(rating));
 
@@ -14,7 +14,6 @@ const ProductCard = (props) => {
           source={{ uri: img }}
           style={styles.image}
         />
-        <Text style={styles.badge}>{id}</Text>
         {rating >= 3 && (
           <Image
             source={require('../assets/eco-badge.png')}
@@ -73,7 +72,7 @@ const ProductCard = (props) => {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
-    borderRadius: 16,
+    borderRadius: 12,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -81,12 +80,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     marginBottom: 16,
-    width: '100%',
-    maxWidth: 360,
+    width: '48%', // Adjust width to fit two cards in a row
   },
   imageContainer: {
     position: 'relative',
-    height: 192,
+    height: 120, // Reduced height
     backgroundColor: '#f8f9fa',
     borderRadius: 12,
     overflow: 'hidden',
@@ -94,7 +92,8 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
+    resizeMode: 'contain',
+    backgroundColor: '#fff',
   },
   badge: {
     position: 'absolute',
@@ -102,38 +101,38 @@ const styles = StyleSheet.create({
     left: 8,
     backgroundColor: '#198754',
     color: '#fff',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     borderRadius: 8,
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: 'bold',
   },
   ecoBadge: {
     position: 'absolute',
     top: 8,
     right: 8,
-    width: 48,
-    height: 48,
+    width: 32,
+    height: 32,
   },
   cardBody: {
-    padding: 12,
+    padding: 8,
   },
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     flex: 1,
-    marginRight: 8,
+    marginRight: 4,
   },
   material: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#6c757d',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   bold: {
     fontWeight: 'bold',
@@ -141,21 +140,21 @@ const styles = StyleSheet.create({
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   stars: {
     flexDirection: 'row',
-    marginRight: 8,
+    marginRight: 4,
   },
   star: {
-    marginRight: 2,
+    marginRight: 1,
   },
   ratingText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#6c757d',
   },
   description: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#6c757d',
     fontStyle: 'italic',
   },
