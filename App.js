@@ -2,14 +2,16 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Text, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context"; // Import SafeAreaView
-import Icon from "react-native-vector-icons/Ionicons"; // Import Ionicons
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"; // Import MaterialCommunityIcons
+import { SafeAreaView } from "react-native-safe-area-context"; 
+import Icon from "react-native-vector-icons/Ionicons"; 
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"; 
 
-// Import your screens
+// screens
 import Home from "./src/pages/home";
 import GetRating from "./src/pages/getRating";
 import LensSearch from "./src/pages/searchLens";
+
+// components
 import Header from "./src/components/header";
 
 const Tab = createBottomTabNavigator();
@@ -27,15 +29,15 @@ export default function App() {
             ),
             tabBarIcon: ({ focused }) => {
               let iconName;
-              let IconComponent = Icon; // Default to Ionicons
+              let IconComponent = Icon; 
 
               if (route.name === "Home") {
                 iconName = focused ? "home" : "home-outline";
               } else if (route.name === "Get Rating") {
-                IconComponent = MaterialCommunityIcons; // Use MaterialCommunityIcons
+                IconComponent = MaterialCommunityIcons; 
                 iconName = focused ? "card-search" : "card-search-outline";
               } else if (route.name === "Lens Search") {
-                IconComponent = MaterialCommunityIcons; // Use MaterialCommunityIcons
+                IconComponent = MaterialCommunityIcons; 
                 iconName = focused ? "image-search" : "image-search-outline";
               }
 

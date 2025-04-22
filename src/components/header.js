@@ -5,7 +5,7 @@ import Logo from '../assets/eco-cart-logo.png'
 const Header = () => {
   return (
     <View style={style.container}>
-        <Image source={Logo} style={{ width: 70, height: 70 }} />
+        <Image source={Logo} style={{ width: 50, height: 50 }} />
         <Text style={style.header}>Eco-Cart</Text>
     </View>
   )
