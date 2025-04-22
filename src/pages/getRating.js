@@ -4,7 +4,9 @@ import { useNavigation } from '@react-navigation/native'
 
 const GetRating = () => {
   return (
-    <View>Home</View>
+    <View>
+                <Text>Get Rating</Text>
+    </View>
   )
 }
 

@@ -4,7 +4,9 @@ import { useNavigation } from '@react-navigation/native'
 
 const SearchLens = () => {
   return (
-    <View>Home</View>
+    <View>
+        <Text>Search Lens</Text>
+    </View>
   )
 }
 

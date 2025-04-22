@@ -4,7 +4,10 @@ import { useNavigation } from '@react-navigation/native'
 
 const Home = () => {
   return (
-    <View>Home</View>
+    <View>
+
+        <Text>Home</Text>
+    </View>
   )
 }
 
