@@ -7,7 +7,7 @@ const ProductCard = (props) => {
 
   // const ratingInt = parseInt(rating, 10); 
   const ratingInt = Math.round(Number(rating));
-  console.log(ratingInt);
+  // console.log(ratingInt);
   
 
   const ratingStars = Array.from({ length: 5 }, (_, i) => i < Math.round(ratingInt));
@@ -19,7 +19,7 @@ const ProductCard = (props) => {
           source={{ uri: img }}
           style={styles.image}
         />
-        {ratingInt >= 3 && (
+        {rating >= 3 && (
           <Image
             source={require('../assets/eco-badge.png')}
             style={styles.ecoBadge}

@@ -73,7 +73,7 @@ const GetRating = () => {
         { title, material }
       );
 
-      // console.log('[INFO] Eco-score response:', response.data);
+      // console.log('[INFO] Eco-score response::::::::::', response.data);
 
       // Extract and process the rating value
       const rating = parseInt(response.data.rating, 10); // Convert to a number
@@ -94,10 +94,10 @@ const GetRating = () => {
       
       if (rating >= 3) {
         setStatusMessage('✅ Product is eco-friendly!');
-        console.log('[INFO] Product is eco-friendly:', { rating, description });
+        // console.log('[INFO] Product is eco-friendly:', { rating, description });
       } else {
         setStatusMessage('🔍 Searching for better alternatives...');
-        console.log('[INFO] Product is not eco-friendly. Searching for alternatives...');
+        // console.log('[INFO] Product is not eco-friendly. Searching for alternatives...');
         await suggestAlternative(category);
       }
       
@@ -111,35 +111,43 @@ const GetRating = () => {
   const suggestAlternative = async (category) => {
     try {
       setStatusMessage('🔍 Fetching alternative products...');
-      console.log('Fetching alternative products...');
       const response = await axios.post(
         'https://eco-cart-backendnode.onrender.com/search-product',
         { query: category }
       );
 
-      console.log('Alternatives response:', response.data); // Log response for debugging
       const alternatives = response.data.products || [];
       const top3Links = alternatives.slice(0, 3).map((product) => product.link);
 
       for (const link of top3Links) {
-        setStatusMessage(`🔗 Scraping alternative products`);
-        const response = await axios.post(
+        setStatusMessage(`🔗 Scraping alternative product`);
+        const scrapeResponse = await axios.post(
           'https://scrapping-relay.onrender.com/scrape',
           { url: link }
         );
 
-        const { image_url, material, title, price } = response.data;
+        const { image_url, material, title, price } = scrapeResponse.data;
 
+        // Send the scraped data for rating
+        const ratingResponse = await axios.post(
+          'https://eco-cart-backendnode.onrender.com/gemini-getRating',
+          { title, material }
+        );
+
+        const { rating, description } = ratingResponse.data;
+
+        // Add the rated alternative product to the list
         setAlternativeProducts((prev) => [
           ...prev,
-          { image_url, material, title, price, link },
+          { image_url, material, title, price, link, rating, description },
         ]);
       }
-      setStatusMessage('✅ Alternatives fetched successfully.');
+
+      setStatusMessage('✅ Alternatives fetched and rated successfully.');
     } catch (err) {
-      console.error('Error fetching alternatives:', err); // Log error for debugging
-      setError('Failed to fetch alternatives.');
-      setStatusMessage('❌ Error fetching alternatives.');
+      console.error('Error fetching or rating alternatives:', err); // Log error for debugging
+      setError('Failed to fetch or rate alternatives.');
+      setStatusMessage('❌ Error fetching or rating alternatives.');
     }
   };
 
