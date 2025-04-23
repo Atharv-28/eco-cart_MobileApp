@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import ProductCard from '../components/productCard';
+import AnimatedCard from '../components/animatedCard';
 
 const GetRating = () => {
   const [productLink, setProductLink] = useState('');
@@ -66,24 +67,30 @@ const GetRating = () => {
     try {
       setStatusMessage('📊 Sending data for eco-score analysis...');
       console.log('[INFO] Sending data for eco-score analysis:', { title, material });
+
       const response = await axios.post(
         'https://eco-cart-backendnode.onrender.com/gemini-getRating',
         { title, material }
       );
 
       console.log('[INFO] Eco-score response:', response.data);
-      const { rating, description, category } = response.data;
 
+      // Extract and process the rating value
+      const rating = parseInt(response.data.rating, 10); // Convert to a number
+      const { description, category } = response.data;
+
+      console.log('[INFO] Eco-score data:', { rating });
+      setProductData({
+        image_url,
+        material,
+        title,
+        price,
+        rating,
+        description,
+        link,
+      });
+      
       if (rating >= 3) {
-        setProductData({
-          image_url,
-          material,
-          title,
-          price,
-          rating,
-          description,
-          link,
-        });
         setStatusMessage('✅ Product is eco-friendly!');
         console.log('[INFO] Product is eco-friendly:', { rating, description });
       } else {
@@ -91,6 +98,7 @@ const GetRating = () => {
         console.log('[INFO] Product is not eco-friendly. Searching for alternatives...');
         await suggestAlternative(category);
       }
+      
     } catch (err) {
       console.error('[ERROR] Error during eco-score analysis:', err.message);
       setError('Failed to fetch rating. Please try again.');
@@ -172,7 +180,7 @@ const GetRating = () => {
 
       {productData && (
         <View style={styles.productCard}>
-          <ProductCard {...productData} />
+          <AnimatedCard {...productData} />
         </View>
       )}
 
@@ -196,13 +204,14 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 16,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#e9f5e9',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 8,
     textAlign: 'center',
+    color: '#198754',
   },
   subtitle: {
     fontSize: 16,
@@ -213,13 +222,14 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 8,
+    borderRadius: 30,
+    height: 60,
     padding: 12,
     marginBottom: 16,
     backgroundColor: '#fff',
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#198754',
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
@@ -252,6 +262,7 @@ const styles = StyleSheet.create({
   },
   productCard: {
     marginBottom: 16,
+    width: '100%',
   },
   alternatives: {
     marginTop: 16,
