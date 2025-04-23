@@ -172,6 +172,14 @@ export default function LensSearchPage() {
     }
   };
 
+  const handleReset = () => {
+    setSelectedFile(null); // Clear the selected image
+    setProduct(null); // Clear the main product
+    setAlternatives([]); // Clear the alternatives
+    setError(''); // Clear any error messages
+    console.log('[DEBUG] Reset button clicked. States cleared.');
+  };
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.header}>EcoLens</Text>
@@ -191,17 +199,27 @@ export default function LensSearchPage() {
 
       {/* Analyze Button */}
       {selectedFile && (
-        <TouchableOpacity
-          style={styles.analyzeButton}
-          onPress={fetchImageDetails}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <Text style={styles.analyzeButtonText}>Analyze Product</Text>
-          )}
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity
+            style={styles.analyzeButton}
+            onPress={fetchImageDetails}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.analyzeButtonText}>Analyze Product</Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Reset Button */}
+          <TouchableOpacity
+            style={styles.resetButton}
+            onPress={handleReset}
+          >
+            <Text style={styles.resetButtonText}>Reset</Text>
+          </TouchableOpacity>
+        </>
       )}
 
       {/* Error Message */}
@@ -275,7 +293,9 @@ const styles = StyleSheet.create({
   analyzeButton: {
     backgroundColor: '#198754',
     padding: 12,
-    borderRadius: 8,
+    alignSelf: 'center',
+    width: '50%',
+    borderRadius: 30,
     alignItems: 'center',
     marginBottom: 16,
   },
@@ -317,5 +337,19 @@ const styles = StyleSheet.create({
     color: '#198754',
     marginBottom: 8,
     textAlign: 'center',
+  },
+  resetButton: {
+    backgroundColor: '#dc3545', // Red color for reset
+    padding: 12,
+    alignSelf: 'center',
+    width: '50%',
+    borderRadius: 30,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  resetButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
