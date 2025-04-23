@@ -9,7 +9,7 @@ import {
   Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Replace Bootstrap icons with Ionicons
-// import Chatbox from './Chatbox'; // Import Chatbox componentk
+import Chatbox from './chatBox'; // Import Chatbox componentk
 
 export default function AnimatedCard(props) {
   const { id, title, link, image_url, rating, description, material, price } = props;
@@ -167,7 +167,7 @@ export default function AnimatedCard(props) {
       </Animated.View>
 
       {/* Chatbox */}
-      {/* {showChatbox && <Chatbox productName={animatedName} price={price} material={material} />} */}
+      {showChatbox && <Chatbox productName={animatedName} price={price} material={material} />}
     </View>
   );
 }
