@@ -107,7 +107,6 @@ export default function AnimatedCard(props) {
             style={styles.image}
             resizeMode="contain"
           />
-          <Text style={styles.badge}>{id}</Text>
 
           {rating >= 3 && (
             <Image

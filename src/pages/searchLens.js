@@ -1,18 +1,17 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Image,
-  FlatList,
-  TextInput,
   ActivityIndicator,
+  ScrollView,
   Alert,
 } from 'react-native';
+import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
-import ProductCard from '../components/productCard';
 import AnimatedCard from '../components/animatedCard';
 
 export default function LensSearchPage() {
@@ -76,26 +75,105 @@ export default function LensSearchPage() {
     setLoading(true);
     setError('');
     try {
+      console.log('[DEBUG] Sending Cloudinary URL to backend:', selectedFile);
+
+      // Send the Cloudinary URL to the backend
       const response = await fetch('https://eco-cart-backendnode.onrender.com/gemini-ecoLens', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageUrl: selectedFile }),
       });
 
-      if (!response.ok) throw new Error('Analysis failed');
+      if (!response.ok) {
+        console.error('[ERROR] Backend analysis failed:', response.status, response.statusText);
+        throw new Error('Analysis failed');
+      }
 
       const analysis = await response.json();
-      console.log('Backend response:', analysis);
+      console.log('[DEBUG] Backend response:', analysis);
+
+      // Combine brand and product into one query
+      const query = analysis.product;
+      console.log('[DEBUG] Combined query:', query);
+
+      // Fetch alternatives using the combined query
+      const alternativesResponse = await fetch(
+        'https://eco-cart-backendnode.onrender.com/search-product',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
+        }
+      );
+
+      if (!alternativesResponse.ok) {
+        console.error('[ERROR] Fetching alternatives failed:', alternativesResponse.status, alternativesResponse.statusText);
+        throw new Error('Failed to fetch alternatives');
+      }
+
+      const alternativesData = await alternativesResponse.json();
+      console.log('[DEBUG] Alternatives response:', alternativesData);
+
+      // Get the first product from alternatives
+      const firstProduct = alternativesData.products[0];
+      console.log('[DEBUG] First product from alternatives:', firstProduct);
+
+      if (firstProduct) {
+        console.log('[DEBUG] Sending first product link to scrape endpoint...');
+
+        // Send the first product link to the scrape endpoint
+        const scrapeResponse = await axios.post(
+          'https://scrapping-relay.onrender.com/scrape',
+          { url: firstProduct.link }
+        );
+
+        const { image_url, material, title, price } = scrapeResponse.data;
+        console.log('[DEBUG] Scrape response:', { image_url, material, title, price });
+
+        if (!material || !title) {
+          console.error('[ERROR] Missing material or title in scrape response:', scrapeResponse.data);
+          setError('Failed to fetch product data. Please try again.');
+          return;
+        }
+
+        console.log('[DEBUG] Sending scraped data to getGeminiRating endpoint...');
+
+        // Send the scraped data to the getGeminiRating endpoint
+        const ratingResponse = await axios.post(
+          'https://eco-cart-backendnode.onrender.com/gemini-getRating',
+          { title, material }
+        );
+
+        const { rating, description } = ratingResponse.data;
+        console.log('[DEBUG] Rating response:', { rating, description });
+
+        // Update the product state with the final data
+        setProduct({
+          name: title,
+          price,
+          material,
+          rating,
+          desc: description,
+          img: image_url,
+          link: firstProduct.link,
+        });
+      }
+
+      // Set all alternatives
+      setAlternatives(alternativesData.products);
     } catch (err) {
-      console.error('Error:', err);
+      console.error('[ERROR] An error occurred:', err.message);
       setError(err.message || 'Analysis failed');
     } finally {
       setLoading(false);
+      console.log(product);
+      
+      console.log('[DEBUG] Finished processing.');
     }
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.header}>EcoLens</Text>
       <Text style={styles.subHeader}>Scan Products for Sustainability Insights</Text>
 
@@ -133,43 +211,21 @@ export default function LensSearchPage() {
       {product && (
         <View style={styles.productContainer}>
           <Text style={styles.sectionHeader}>Product Found</Text>
+                  <View style={styles.productCard}>
+          
           <AnimatedCard
-            img={product.img}
-            name={product.name}
+            image_url={product.img}
+            title={product.name}
             price={product.price}
             material={product.material}
             link={product.link}
             rating={product.rating}
-            rating_description={product.desc}
+            description={product.desc}
           />
+          </View>
         </View>
       )}
-
-      {/* Alternatives */}
-      {alternatives.length > 0 && (
-        <View style={styles.alternativesContainer}>
-          <Text style={styles.sectionHeader}>Eco-Friendly Alternatives</Text>
-          <FlatList
-            data={alternatives}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-              <ProductCard
-                name={item.title}
-                link={item.link}
-                img={item.image_url}
-                rating={item.rating}
-                material={item.material}
-                price={item.price}
-                rating_description={item.description}
-              />
-            )}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.alternativesList}
-          />
-        </View>
-      )}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -234,17 +290,30 @@ const styles = StyleSheet.create({
   },
   productContainer: {
     marginBottom: 16,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    height: 600,
+    shadowRadius: 4,
+    elevation: 3, // For Android shadow
+  },
+  productCard: {
+    margin: 16,
+    width: '100%',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    borderColor: 'red',
+    borderWidth: 1,
+    height: "90%",
   },
   sectionHeader: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#198754',
     marginBottom: 8,
-  },
-  alternativesContainer: {
-    marginTop: 16,
-  },
-  alternativesList: {
-    paddingHorizontal: 8,
+    textAlign: 'center',
   },
 });
