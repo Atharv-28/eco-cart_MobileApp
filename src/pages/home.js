@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, FlatList, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../util/config';
 import ProductCard from '../components/productCard';
 import { Ionicons } from '@expo/vector-icons'; // For pagination icons
+import Chatbox from '../components/chatBot'; // Import the ChatBot component
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isChatOpen, setIsChatOpen] = useState(false); // State to toggle ChatBot
   const itemsPerPage = 15;
 
   // Fetch products from Firestore
@@ -107,6 +109,26 @@ const Home = () => {
       ) : (
         <Text style={styles.noProductsText}>No products found.</Text>
       )}
+
+      {/* ChatBot */}
+      {isChatOpen ? (
+        <Animated.View style={styles.chatBotContainer}>
+          <Chatbox productName="Sample Product" price="100" material="Plastic" />
+          <TouchableOpacity
+            style={styles.closeChatButton}
+            onPress={() => setIsChatOpen(false)}
+          >
+            <Ionicons name="close" size={24} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
+      ) : (
+        <TouchableOpacity
+          style={styles.chatIcon}
+          onPress={() => setIsChatOpen(true)}
+        >
+          <Ionicons name="chatbubble-ellipses-outline" size={24} color="#fff" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -145,7 +167,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
-    // marginTop: 16,
   },
   paginationButton: {
     padding: 8,
@@ -154,6 +175,39 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6c757d',
     marginHorizontal: 16,
+  },
+  chatIcon: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#198754',
+    padding: 16,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chatBotContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '60%',
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  closeChatButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: '#198754',
+    padding: 8,
+    borderRadius: 50,
   },
 });
 
