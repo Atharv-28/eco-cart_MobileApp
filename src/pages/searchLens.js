@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import ProductCard from '../components/productCard';
 import AnimatedCard from '../components/animatedCard';
 
-export default function LensSearch() {
+export default function LensSearchPage() {
   const [selectedFile, setSelectedFile] = useState(null); // Stores the image URI
   const [alternatives, setAlternatives] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ export default function LensSearch() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType.IMAGE, // Updated to use MediaType
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
