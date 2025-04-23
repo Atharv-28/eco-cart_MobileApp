@@ -214,6 +214,7 @@ export default function LensSearchPage() {
                   <View style={styles.productCard}>
           
           <AnimatedCard
+          style={styles.productCardChild}
             image_url={product.img}
             title={product.name}
             price={product.price}
@@ -296,8 +297,10 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    height: 600,
+    height: 800,
     shadowRadius: 4,
+    width: '100%',
+    alignSelf: 'center',
     elevation: 3, // For Android shadow
   },
   productCard: {
@@ -305,9 +308,8 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     justifyContent: 'center',
-    borderColor: 'red',
-    borderWidth: 1,
     height: "90%",
+    marginLeft: -180,
   },
   sectionHeader: {
     fontSize: 18,
