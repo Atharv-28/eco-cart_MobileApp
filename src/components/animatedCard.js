@@ -78,7 +78,7 @@ export default function AnimatedCard(props) {
       return;
     }
   
-    let starIndex = 0;
+    let starIndex = 1;
     const starInterval = setInterval(() => {
       if (starIndex < Math.round(rating)) {
         setFilledStars((prev) => prev + 1);

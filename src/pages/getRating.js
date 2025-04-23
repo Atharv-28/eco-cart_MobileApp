@@ -13,6 +13,7 @@ import {
 import axios from 'axios';
 import ProductCard from '../components/productCard';
 import AnimatedCard from '../components/animatedCard';
+import { dynamicUpload } from '../util/dynamicUpload'; // Import the dynamicUpload function
 
 const GetRating = () => {
   const [productLink, setProductLink] = useState('');
@@ -78,10 +79,9 @@ const GetRating = () => {
       // Extract and process the rating value
       const rating = parseInt(response.data.rating, 10); // Convert to a number
       const { description, category } = response.data;
-      
 
       // console.log('[INFO] Eco-score data:', { rating });
-      setProductData({
+      const productData = {
         image_url,
         material,
         title,
@@ -89,18 +89,23 @@ const GetRating = () => {
         rating,
         description,
         link,
-      });
-      
-      
+      };
+
+      setProductData(productData);
+
       if (rating >= 3) {
         setStatusMessage('✅ Product is eco-friendly!');
         // console.log('[INFO] Product is eco-friendly:', { rating, description });
+
+        // Call dynamicUpload to upload the product to Firestore
+        await dynamicUpload(productData);
+        console.log('[INFO] Product uploaded to Firestore:', productData);
+        
       } else {
         setStatusMessage('🔍 Searching for better alternatives...');
         // console.log('[INFO] Product is not eco-friendly. Searching for alternatives...');
         await suggestAlternative(category);
       }
-      
     } catch (err) {
       console.error('[ERROR] Error during eco-score analysis:', err.message);
       setError('Failed to fetch rating. Please try again.');
@@ -151,6 +156,15 @@ const GetRating = () => {
     }
   };
 
+  const handleReset = () => {
+    setProductLink(''); // Clear the product link input
+    setProductData(null); // Clear the current product data
+    setAlternativeProducts([]); // Clear the alternative products
+    setError(null); // Clear any error messages
+    setStatusMessage(''); // Clear the status message
+    console.log('[DEBUG] Reset button clicked. States cleared.');
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Check Eco-Friendliness</Text>
@@ -173,6 +187,13 @@ const GetRating = () => {
         <Text style={styles.buttonText}>
           {loading ? 'Analyzing...' : 'Analyze Sustainability'}
         </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.resetButton}
+        onPress={handleReset}
+      >
+        <Text style={styles.resetButtonText}>Reset</Text>
       </TouchableOpacity>
 
       {error && <Text style={styles.error}>{error}</Text>}
@@ -263,6 +284,20 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  resetButton: {
+    backgroundColor: '#dc3545',
+    padding: 12,
+    borderRadius: 30,
+    alignItems: 'center',
+    marginBottom: 16,
+    width: '50%',
+    alignSelf: 'center',
+  },
+  resetButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
