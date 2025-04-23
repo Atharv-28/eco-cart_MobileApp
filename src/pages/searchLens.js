@@ -22,7 +22,7 @@ export default function LensSearchPage() {
   const [error, setError] = useState('');
   const [product, setProduct] = useState(null);
 
-  // Handle image selection
+  // Handle image selection and upload to Cloudinary
   const handleFileSelect = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
@@ -31,13 +31,41 @@ export default function LensSearchPage() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaTypeOptions.IMAGE,
       allowsEditing: true,
       quality: 1,
     });
 
     if (!result.canceled) {
-      setSelectedFile(result.assets[0].uri); // Set the selected image URI
+      const localUri = result.assets[0].uri;
+
+      try {
+        const formData = new FormData();
+        formData.append('file', {
+          uri: localUri,
+          type: 'image/jpeg',
+          name: 'upload.jpg',
+        });
+        formData.append('upload_preset', 'ck4cetvf');
+
+        const cloudinaryResponse = await fetch(
+          'https://api.cloudinary.com/v1_1/dhnplptdz/image/upload',
+          {
+            method: 'POST',
+            body: formData,
+          }
+        );
+
+        if (!cloudinaryResponse.ok) {
+          throw new Error('Failed to upload image to Cloudinary');
+        }
+
+        const cloudinaryData = await cloudinaryResponse.json();
+        setSelectedFile(cloudinaryData.secure_url);
+      } catch (error) {
+        console.error('Error uploading to Cloudinary:', error);
+        Alert.alert('Upload Failed', 'Failed to upload image. Please try again.');
+      }
     }
   };
 
@@ -48,7 +76,6 @@ export default function LensSearchPage() {
     setLoading(true);
     setError('');
     try {
-      // Simulate sending the image to the backend
       const response = await fetch('https://eco-cart-backendnode.onrender.com/gemini-ecoLens', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -58,61 +85,7 @@ export default function LensSearchPage() {
       if (!response.ok) throw new Error('Analysis failed');
 
       const analysis = await response.json();
-      console.log('Backend response:', analysis.product);
-
-      // Fetch alternatives
-      const alternativesResponse = await fetch(
-        'https://eco-cart-backendnode.onrender.com/search-product',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: analysis.product }),
-        }
-      );
-
-      const alternativesData = await alternativesResponse.json();
-      const topAlternative = alternativesData.products[0];
-
-      // Scrape product details
-      const scrapeResponse = await fetch('http://flvpdqnklo.ap.loclx.io/scrape', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: topAlternative.link }),
-      });
-
-      if (!scrapeResponse.ok) throw new Error('Failed to scrape product data');
-
-      const scrapedData = await scrapeResponse.json();
-      console.log('Scraped data:', scrapedData);
-
-      // Get rating for the scraped product
-      const ratingResponse = await fetch(
-        'https://eco-cart-backendnode.onrender.com/gemini-getRating',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(scrapedData),
-        }
-      );
-
-      if (!ratingResponse.ok) throw new Error('Failed to get rating');
-
-      const ratingData = await ratingResponse.json();
-      console.log('Rating data:', ratingData);
-
-      // Set the main product
-      setProduct({
-        name: scrapedData.title,
-        price: scrapedData.price,
-        material: scrapedData.material,
-        rating: ratingData.rating,
-        desc: ratingData.description,
-        img: scrapedData.image_url,
-        link: topAlternative.link,
-      });
-
-      // Set alternatives
-      setAlternatives(alternativesData.products);
+      console.log('Backend response:', analysis);
     } catch (err) {
       console.error('Error:', err);
       setError(err.message || 'Analysis failed');
