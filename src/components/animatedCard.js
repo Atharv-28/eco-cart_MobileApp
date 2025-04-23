@@ -13,12 +13,13 @@ import { Ionicons } from '@expo/vector-icons'; // Replace Bootstrap icons with I
 
 export default function AnimatedCard(props) {
   const { id, title, link, image_url, rating, description, material, price } = props;
-
   const [animatedName, setAnimatedName] = useState('');
   const [filledStars, setFilledStars] = useState(0);
   const [showChatbox, setShowChatbox] = useState(false);
   const slideAnim = useState(new Animated.Value(100))[0]; // Animation for sliding
 
+//   console.log(rating);
+  
   useEffect(() => {
     if (!title || typeof title !== 'string') {
       setAnimatedName('No Title');
@@ -193,44 +194,6 @@ const TypingEffect = ({ text = '' }) => {
   }, [text]);
 
   return <Text style={styles.description}>{displayedText}</Text>;
-};
-
-const rateEco = async (title, price, material, image_url, link) => {
-  try {
-    setStatusMessage('📊 Sending data for eco-score analysis...');
-    console.log('[INFO] Sending data for eco-score analysis:', { title, material });
-
-    const response = await axios.post(
-      'https://eco-cart-backendnode.onrender.com/gemini-getRating',
-      { title, material }
-    );
-
-    console.log('[INFO] Eco-score response:', response.data);
-
-    // Convert rating to a number
-    const rating = parseInt(response.data.rating, 10); // Convert to integer
-    const { description, category } = response.data;
-
-    if (rating >= 3) {
-      setProductData({
-        image_url,
-        material,
-        title,
-        price,
-        rating, // Pass the converted number
-        description,
-        link,
-      });
-      setStatusMessage('✅ Product is eco-friendly!');
-    } else {
-      setStatusMessage('🔍 Searching for better alternatives...');
-      await suggestAlternative(category);
-    }
-  } catch (err) {
-    console.error('[ERROR] Error during eco-score analysis:', err.message);
-    setError('Failed to fetch rating. Please try again.');
-    setStatusMessage('❌ Error during eco-score analysis.');
-  }
 };
 
 const styles = StyleSheet.create({

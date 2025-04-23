@@ -29,17 +29,17 @@ const GetRating = () => {
     setAlternativeProducts([]);
     setError(null);
     setStatusMessage('🌱 Starting analysis...');
-    console.log('[INFO] Starting analysis for product link:', productLink);
+    // console.log('[INFO] Starting analysis for product link:', productLink);
 
     try {
       setStatusMessage('🔗 Sending request to scrape product data...');
-      console.log('[INFO] Sending request to scrape product data...');
+      // console.log('[INFO] Sending request to scrape product data...');
       const response = await axios.post(
         'https://scrapping-relay.onrender.com/scrape',
         { url: productLink }
       );
 
-      console.log('[INFO] Scrape response:', response.data);
+      // console.log('[INFO] Scrape response:', response.data);
       const { image_url, material, title, price } = response.data;
 
       if (!material || !title) {
@@ -51,7 +51,7 @@ const GetRating = () => {
 
       setProductData({ image_url, material, title, price });
       setStatusMessage('📊 Analyzing eco-score...');
-      console.log('[INFO] Product data set successfully:', { image_url, material, title, price });
+      // console.log('[INFO] Product data set successfully:', { image_url, material, title, price });
       await rateEco(title, price, material, image_url, productLink);
     } catch (err) {
       console.error('[ERROR] Error during scraping:', err.message);
@@ -59,27 +59,28 @@ const GetRating = () => {
       setStatusMessage('❌ Network error during scraping.');
     } finally {
       setLoading(false);
-      console.log('[INFO] Finished analysis process.');
+      // console.log('[INFO] Finished analysis process.');
     }
   };
 
   const rateEco = async (title, price, material, image_url, link) => {
     try {
       setStatusMessage('📊 Sending data for eco-score analysis...');
-      console.log('[INFO] Sending data for eco-score analysis:', { title, material });
+      // console.log('[INFO] Sending data for eco-score analysis:', { title, material });
 
       const response = await axios.post(
         'https://eco-cart-backendnode.onrender.com/gemini-getRating',
         { title, material }
       );
 
-      console.log('[INFO] Eco-score response:', response.data);
+      // console.log('[INFO] Eco-score response:', response.data);
 
       // Extract and process the rating value
       const rating = parseInt(response.data.rating, 10); // Convert to a number
       const { description, category } = response.data;
+      
 
-      console.log('[INFO] Eco-score data:', { rating });
+      // console.log('[INFO] Eco-score data:', { rating });
       setProductData({
         image_url,
         material,
@@ -89,6 +90,7 @@ const GetRating = () => {
         description,
         link,
       });
+      
       
       if (rating >= 3) {
         setStatusMessage('✅ Product is eco-friendly!');
@@ -120,7 +122,7 @@ const GetRating = () => {
       const top3Links = alternatives.slice(0, 3).map((product) => product.link);
 
       for (const link of top3Links) {
-        setStatusMessage(`🔗 Scraping alternative product: ${link}`);
+        setStatusMessage(`🔗 Scraping alternative products`);
         const response = await axios.post(
           'https://scrapping-relay.onrender.com/scrape',
           { url: link }
@@ -189,10 +191,25 @@ const GetRating = () => {
           <Text style={styles.alternativesTitle}>Better Alternatives</Text>
           <FlatList
             data={alternativeProducts}
+            style={styles.alternativesList}
             keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => <ProductCard {...item} />}
-            horizontal
-            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <View style={styles.alternativeCardContainer}>
+                <ProductCard 
+                  name={item.title}
+                  link={item.link}
+                  img={item.image_url}
+                  rating={item.rating}
+                  material={item.material}
+                  price={item.price}
+                  rating_description={item.description} // Assuming description is the rating description
+                
+                />
+              </View>
+            )}
+            horizontal // Enable horizontal scrolling
+            showsHorizontalScrollIndicator={false} // Hide the scroll indicator
+            contentContainerStyle={styles.alternativeList} // Add padding for horizontal scrolling
           />
         </View>
       )}
@@ -231,9 +248,11 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: '#198754',
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 30,
     alignItems: 'center',
     marginBottom: 16,
+    width: '50%',
+    alignSelf: 'center',
   },
   buttonText: {
     color: '#fff',
@@ -266,11 +285,17 @@ const styles = StyleSheet.create({
   },
   alternatives: {
     marginTop: 16,
+    width: '90%',
+    alignSelf: 'center',
   },
   alternativesTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
+  },
+  alternativeCardContainer: {
+    width: 400, // Match the width of home screen cards
+    marginRight: -150,
   },
 });
 

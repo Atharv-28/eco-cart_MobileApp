@@ -5,7 +5,12 @@ import { Ionicons } from '@expo/vector-icons'; // For icons
 const ProductCard = (props) => {
   const { name, link, img, rating, rating_description, material } = props;
 
-  const ratingStars = Array.from({ length: 5 }, (_, i) => i < Math.round(rating));
+  // const ratingInt = parseInt(rating, 10); 
+  const ratingInt = Math.round(Number(rating));
+  console.log(ratingInt);
+  
+
+  const ratingStars = Array.from({ length: 5 }, (_, i) => i < Math.round(ratingInt));
 
   return (
     <View style={styles.card}>
@@ -14,7 +19,7 @@ const ProductCard = (props) => {
           source={{ uri: img }}
           style={styles.image}
         />
-        {rating >= 3 && (
+        {ratingInt >= 3 && (
           <Image
             source={require('../assets/eco-badge.png')}
             style={styles.ecoBadge}
@@ -58,7 +63,7 @@ const ProductCard = (props) => {
               )
             )}
           </View>
-          <Text style={styles.ratingText}>({rating})</Text>
+          <Text style={styles.ratingText}>({ratingInt})</Text>
         </View>
 
         <Text style={styles.description} numberOfLines={3}>
